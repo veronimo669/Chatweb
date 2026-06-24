@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='join.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>👋 Join a Chat</h2>
+        <p class="subtitle">Enter the room ID provided by the host</p>
+        <form id="joinForm">
+            <div class="form-group">
+                <label for="roomId">Room ID</label>
+                <input type="text" id="roomId" placeholder="Enter room ID" required>
+            </div>
+            <div class="form-group">
+                <label for="username">Your Name</label>
+                <input type="text" id="username" placeholder="Enter your name" required>
+            </div>
+            <button type="submit" class="btn-join">Join Chat</button>
+            <div id="error" class="error"></div>
+        </form>
+        <a href="/" class="btn-back">← Back to Home</a>
+    </div>
+
+    <script>
+        document.getElementById('joinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const roomId = document.getElementById('roomId').value.trim();
+            const username = document.getElementById('username').value.trim();
+            
+            if (!roomId || !username) {
+                document.getElementById('error').textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            window.location.href = `/chat/${roomId}?username=${encodeURIComponent(username)}`;
+        });
+    </script>
+</body>
+</html>

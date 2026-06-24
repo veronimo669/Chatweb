@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            color: #555;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn-join {
+            width: 100%;
+            padding: 14px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-join:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(72, 187, 120, 0.3);
+        }
+        .btn-back {
+            display: inline-block;
+            margin-top: 15px;
+            color: #667eea;
+            text-decoration: none;
+        }
+        .btn-back:hover {
+            text-decoration: underline;
+        }
+        .error {
+            color: #e53e3e;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>👋 Join a Chat</h2>
+        <p class="subtitle">Enter the room ID provided by the host</p>
+        <form id="joinForm">
+            <div class="form-group">
+                <label for="roomId">Room ID</label>
+                <input type="text" id="roomId" placeholder="Enter room ID" required>
+            </div>
+            <div class="form-group">
+                <label for="username">Your Name</label>
+                <input type="text" id="username" placeholder="Enter your name" required>
+            </div>
+            <button type="submit" class="btn-join">Join Chat</button>
+            <div id="error" class="error"></div>
+        </form>
+        <a href="/" class="btn-back">← Back to Home</a>
+    </div>
+
+    <script>
+        document.getElementById('joinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const roomId = document.getElementById('roomId').value.trim();
+            const username = document.getElementById('username').value.trim();
+            
+            if (!roomId || !username) {
+                document.getElementById('error').textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            // Redirect to chat with room ID and username as query params
+            window.location.href = `/chat/${roomId}?username=${encodeURIComponent(username)}`;
+        });
+    </script>
+</body>
+</html>
