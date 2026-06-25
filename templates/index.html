@@ -3,42 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Chat</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='join.css') }}">
+    <title>Real-time Chat</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        p { color: #666; margin-bottom: 30px; }
+        .btn-group { display: flex; flex-direction: column; gap: 15px; }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-host {
+            background: #667eea;
+            color: white;
+        }
+        .btn-host:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        .btn-join {
+            background: #48bb78;
+            color: white;
+        }
+        .btn-join:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+        .icon { font-size: 40px; margin-bottom: 20px; display: block; }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h2>👋 Join a Chat</h2>
-        <p class="subtitle">Enter the room ID provided by the host</p>
-        <form id="joinForm">
-            <div class="form-group">
-                <label for="roomId">Room ID</label>
-                <input type="text" id="roomId" placeholder="Enter room ID" required>
-            </div>
-            <div class="form-group">
-                <label for="username">Your Name</label>
-                <input type="text" id="username" placeholder="Enter your name" required>
-            </div>
-            <button type="submit" class="btn-join">Join Chat</button>
-            <div id="error" class="error"></div>
-        </form>
-        <a href="/" class="btn-back">← Back to Home</a>
+        <span class="icon">💬</span>
+        <h1>Real-time Chat</h1>
+        <p>Start a conversation with friends or colleagues</p>
+        <div class="btn-group">
+            <a href="/host" class="btn btn-host">🎤 Host a Chat</a>
+            <a href="/join" class="btn btn-join">👋 Join a Chat</a>
+        </div>
     </div>
-
-    <script>
-        document.getElementById('joinForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const roomId = document.getElementById('roomId').value.trim();
-            const username = document.getElementById('username').value.trim();
-            
-            if (!roomId || !username) {
-                document.getElementById('error').textContent = 'Please fill in all fields';
-                return;
-            }
-            
-            window.location.href = `/chat/${roomId}?username=${encodeURIComponent(username)}`;
-        });
-    </script>
 </body>
 </html>
