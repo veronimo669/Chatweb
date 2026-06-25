@@ -6,11 +6,7 @@
     <title>Chat Room</title>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: Arial, sans-serif;
             background: #f0f2f5;
@@ -25,18 +21,17 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .header h2 {
-            color: #333;
-            font-size: 20px;
-        }
+        .header h2 { color: #333; font-size: 20px; }
         .header-info {
             display: flex;
             align-items: center;
             gap: 15px;
             font-size: 14px;
             color: #666;
+            flex-wrap: wrap;
         }
         .host-badge {
             background: #667eea;
@@ -50,7 +45,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             width: 100%;
             padding: 20px;
@@ -61,7 +56,7 @@
             padding: 20px;
             background: white;
             border-radius: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             min-height: 300px;
             max-height: 500px;
@@ -75,9 +70,7 @@
             color: #667eea;
             margin-right: 10px;
         }
-        .message .username.host {
-            color: #e53e3e;
-        }
+        .message .username.host { color: #e53e3e; }
         .message .timestamp {
             color: #999;
             font-size: 12px;
@@ -92,9 +85,7 @@
             max-width: 80%;
             word-wrap: break-word;
         }
-        .message.own {
-            text-align: right;
-        }
+        .message.own { text-align: right; }
         .message.own .text {
             background: #667eea;
             color: white;
@@ -105,6 +96,38 @@
             font-size: 14px;
             font-style: italic;
         }
+        .file-container {
+            margin-top: 4px;
+            padding: 12px 16px;
+            background: #f7f7f7;
+            border-radius: 12px;
+            display: inline-block;
+            max-width: 80%;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #e2e8f0;
+        }
+        .file-container:hover {
+            background: #edf2f7;
+            border-color: #667eea;
+        }
+        .message.own .file-container {
+            background: #667eea;
+            color: white;
+            border-color: #5a67d8;
+        }
+        .message.own .file-container:hover {
+            background: #5a67d8;
+        }
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .file-icon { font-size: 32px; }
+        .file-details { display: flex; flex-direction: column; }
+        .file-name { font-weight: bold; font-size: 14px; }
+        .file-size { font-size: 12px; opacity: 0.7; }
         .typing-indicator {
             color: #999;
             font-style: italic;
@@ -120,21 +143,28 @@
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             flex-shrink: 0;
+            flex-wrap: wrap;
         }
-        .input-area input {
+        .input-area .message-input-wrapper {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+            min-width: 200px;
+        }
+        .input-area input[type="text"] {
             flex: 1;
             padding: 12px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            min-width: 150px;
         }
-        .input-area input:focus {
+        .input-area input[type="text"]:focus {
             outline: none;
             border-color: #667eea;
         }
         .input-area button {
-            padding: 12px 30px;
+            padding: 12px 24px;
             background: #667eea;
             color: white;
             border: none;
@@ -142,11 +172,46 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
+            white-space: nowrap;
         }
         .input-area button:hover {
             background: #5a67d8;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .input-area button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .file-upload-btn {
+            padding: 12px 20px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .file-upload-btn:hover {
+            background: #38a169;
+            transform: translateY(-2px);
         }
         .user-list {
             background: white;
@@ -171,13 +236,6 @@
             border-radius: 12px;
             font-size: 13px;
             color: #333;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .user-list .user-tag.host {
-            background: #667eea;
-            color: white;
         }
         .user-list .user-tag.self {
             background: #48bb78;
@@ -205,11 +263,8 @@
             border-radius: 8px;
             font-size: 13px;
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.3s;
             border: none;
+            transition: background 0.3s;
         }
         .share-link:hover {
             background: #e2e8f0;
@@ -218,6 +273,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
         .room-id {
             background: #f0f2f5;
@@ -227,29 +283,43 @@
             font-weight: bold;
             color: #333;
         }
+        .upload-status {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: none;
+            font-size: 14px;
+            color: #333;
+        }
+        .upload-status .status-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .upload-status .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .upload-status .progress-fill {
+            height: 100%;
+            background: #667eea;
+            border-radius: 3px;
+            transition: width 0.3s;
+            width: 0%;
+        }
         @media (max-width: 600px) {
-            .header {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
-            .header-info {
-                width: 100%;
-                flex-wrap: wrap;
-            }
-            .chat-container {
-                padding: 10px;
-            }
-            .messages {
-                min-height: 200px;
-                max-height: 350px;
-            }
-            .input-area {
-                flex-direction: column;
-            }
-            .input-area button {
-                width: 100%;
-            }
+            .header { flex-direction: column; align-items: flex-start; }
+            .header-info { width: 100%; flex-wrap: wrap; }
+            .chat-container { padding: 10px; }
+            .messages { min-height: 200px; max-height: 350px; }
+            .input-area { flex-direction: column; }
+            .input-area .message-input-wrapper { flex-direction: column; }
+            .input-area button { width: 100%; }
         }
     </style>
 </head>
@@ -272,91 +342,93 @@
     <div class="chat-container">
         <div class="user-list">
             <h4>👥 Users Online <span id="userCountSmall">(0)</span></h4>
-            <div class="users" id="userList">
-                <span class="user-tag" style="background: #e2e8f0;">Loading...</span>
+            <div class="users" id="userList"></div>
+        </div>
+
+        <div class="upload-status" id="uploadStatus">
+            <div class="status-text">
+                <span id="uploadFileName">Uploading file...</span>
+                <span id="uploadProgressText">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="uploadProgressFill"></div>
             </div>
         </div>
 
         <div class="messages" id="messages">
-            <div class="message system">💬 Welcome to the chat! Start talking...</div>
+            <div class="message system">💬 Welcome to the chat!</div>
         </div>
 
         <div class="typing-indicator" id="typingIndicator"></div>
 
         <div class="input-area">
-            <input type="text" id="messageInput" placeholder="Type a message..." autofocus>
-            <button id="sendButton">📤 Send</button>
+            <div class="message-input-wrapper">
+                <input type="text" id="messageInput" placeholder="Type a message..." autofocus>
+                <button id="sendButton">📤 Send</button>
+            </div>
+            <div class="file-upload-wrapper">
+                <button class="file-upload-btn" id="fileUploadBtn">📎 File</button>
+                <input type="file" id="fileInput" multiple>
+            </div>
         </div>
     </div>
 
     <script>
-        // Get room info from template
         const roomId = '{{ room_id }}';
         const isHost = {{ is_host|tojson }};
         const urlParams = new URLSearchParams(window.location.search);
         const username = urlParams.get('username') || 'Anonymous';
 
-        // Connect to socket
         const socket = io();
-
         let typingTimeout = null;
 
-        // Join the room
         socket.emit('join_room', {
             room_id: roomId,
             username: username,
             is_host: isHost
         });
 
-        // Display join confirmation
         socket.on('join_confirmation', function(data) {
             updateUserCount(data.user_count);
             addSystemMessage(`✅ You joined as "${data.username}"`);
-            
             if (data.is_host) {
                 addSystemMessage('🎤 You are the HOST of this room!');
-                addSystemMessage('📋 Share the Room ID with others so they can join.');
+                addSystemMessage('📁 Files are saved in the "uploads" folder');
             }
         });
 
-        // Handle existing users
+        socket.on('user_joined', function(data) {
+            updateUserCount(data.user_count);
+            addSystemMessage(`👋 ${data.username} joined the chat`);
+            addUserToList(data.username);
+        });
+
+        socket.on('user_left', function(data) {
+            updateUserCount(data.user_count);
+            addSystemMessage(`👋 ${data.username} left the chat`);
+            removeUserFromList(data.username);
+        });
+
         socket.on('existing_users', function(data) {
             updateUserList(data.users);
         });
 
-        // Handle new user joining
-        socket.on('user_joined', function(data) {
-            updateUserCount(data.user_count);
-            addSystemMessage(`👋 ${data.username} joined the chat`);
-            // Add to user list
-            addUserToList(data.username);
-        });
-
-        // Handle user leaving
-        socket.on('user_left', function(data) {
-            updateUserCount(data.user_count);
-            addSystemMessage(`👋 ${data.username} left the chat`);
-            // Remove from user list
-            removeUserFromList(data.username);
-        });
-
-        // Receive messages
         socket.on('receive_message', function(data) {
             const isOwn = data.username === username;
             addMessage(data.username, data.message, data.timestamp, data.is_host, isOwn);
         });
 
-        // Handle typing indicator
-        socket.on('user_typing', function(data) {
-            const indicator = document.getElementById('typingIndicator');
-            if (data.is_typing) {
-                indicator.textContent = `✏️ ${data.username} is typing...`;
-            } else {
-                indicator.textContent = '';
-            }
+        socket.on('receive_file_info', function(data) {
+            const isOwn = data.username === username;
+            addFileMessage(data.username, data.filename, data.file_id, data.file_size, 
+                          data.timestamp, data.is_host, isOwn, data.icon);
         });
 
-        // Send message function
+        socket.on('user_typing', function(data) {
+            document.getElementById('typingIndicator').textContent = 
+                data.is_typing ? `✏️ ${data.username} is typing...` : '';
+        });
+
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
@@ -373,7 +445,77 @@
             input.focus();
         }
 
-        // Add message to chat
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('room_id', roomId);
+            formData.append('username', username);
+
+            const statusDiv = document.getElementById('uploadStatus');
+            const fileNameDisplay = document.getElementById('uploadFileName');
+            const progressText = document.getElementById('uploadProgressText');
+            const progressFill = document.getElementById('uploadProgressFill');
+
+            statusDiv.style.display = 'block';
+            fileNameDisplay.textContent = `📤 ${file.name}`;
+            progressText.textContent = '0%';
+            progressFill.style.width = '0%';
+
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.onprogress = function(e) {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        progressText.textContent = percent + '%';
+                        progressFill.style.width = percent + '%';
+                    }
+                };
+
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            progressText.textContent = '✅ Done!';
+                            progressFill.style.width = '100%';
+                            setTimeout(() => {
+                                statusDiv.style.display = 'none';
+                            }, 2000);
+                            resolve(response);
+                        } catch (e) {
+                            reject(new Error('Invalid response'));
+                        }
+                    } else {
+                        reject(new Error(`Upload failed: ${xhr.status}`));
+                    }
+                };
+
+                xhr.onerror = function() {
+                    reject(new Error('Network error'));
+                };
+
+                xhr.open('POST', '/upload');
+                xhr.send(formData);
+            });
+        }
+
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
+            const files = this.files;
+            const btn = document.getElementById('fileUploadBtn');
+            btn.disabled = true;
+            
+            for (let file of files) {
+                try {
+                    await uploadFile(file);
+                } catch (error) {
+                    alert(`Error uploading ${file.name}: ${error.message}`);
+                }
+            }
+            
+            btn.disabled = false;
+            this.value = '';
+        });
+
         function addMessage(username, message, timestamp, isHost, isOwn) {
             const messages = document.getElementById('messages');
             const msgDiv = document.createElement('div');
@@ -394,7 +536,35 @@
             messages.scrollTop = messages.scrollHeight;
         }
 
-        // Add system message
+        function addFileMessage(username, filename, fileId, fileSize, timestamp, isHost, isOwn, icon) {
+            const messages = document.getElementById('messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message';
+            if (isOwn) msgDiv.classList.add('own');
+
+            const usernameClass = isHost ? 'username host' : 'username';
+            const hostIcon = isHost ? '👑 ' : '';
+            const time = timestamp || new Date().toLocaleTimeString();
+            const size = formatFileSize(fileSize);
+            
+            msgDiv.innerHTML = `
+                <span class="${usernameClass}">${hostIcon}${escapeHtml(username)}</span>
+                <span class="timestamp">${time}</span>
+                <div class="file-container" onclick="window.location.href='/download/${fileId}'">
+                    <div class="file-info">
+                        <span class="file-icon">${icon}</span>
+                        <div class="file-details">
+                            <span class="file-name">${escapeHtml(filename)}</span>
+                            <span class="file-size">${size}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            messages.appendChild(msgDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
         function addSystemMessage(text) {
             const messages = document.getElementById('messages');
             const msgDiv = document.createElement('div');
@@ -404,55 +574,40 @@
             messages.scrollTop = messages.scrollHeight;
         }
 
-        // Update user count
         function updateUserCount(count) {
             document.getElementById('userCount').textContent = `${count} users online`;
             document.getElementById('userCountSmall').textContent = `(${count})`;
         }
 
-        // Update full user list
         function updateUserList(users) {
             const userList = document.getElementById('userList');
             userList.innerHTML = '';
             
             if (!users || users.length === 0) {
-                const tag = document.createElement('span');
-                tag.className = 'user-tag';
-                tag.textContent = 'No one else is here';
-                userList.appendChild(tag);
+                userList.innerHTML = '<span class="user-tag">No one else is here</span>';
                 return;
             }
 
-            // Sort users: host first, then alphabetically
-            const sortedUsers = [...users].sort((a, b) => {
-                if (a === username) return 1; // Put self last
-                if (b === username) return -1;
-                if (isHost && a === getHost()) return -1;
-                if (isHost && b === getHost()) return 1;
-                return a.localeCompare(b);
-            });
+            const allUsers = [...users];
+            if (!allUsers.includes(username)) {
+                allUsers.push(username);
+            }
 
-            sortedUsers.forEach(user => {
+            allUsers.forEach(user => {
                 const tag = document.createElement('span');
                 tag.className = 'user-tag';
-                tag.textContent = user;
-                
                 if (user === username) {
                     tag.classList.add('self');
                     tag.textContent = `👤 ${user} (You)`;
-                } else if (isHost && user === getHost()) {
-                    tag.classList.add('host');
-                    tag.textContent = `👑 ${user}`;
+                } else {
+                    tag.textContent = user;
                 }
-                
                 userList.appendChild(tag);
             });
         }
 
-        // Add a single user to list
         function addUserToList(username) {
             const userList = document.getElementById('userList');
-            // Check if user already exists
             const existing = Array.from(userList.querySelectorAll('.user-tag'))
                 .find(tag => tag.textContent.includes(username));
             if (existing) return;
@@ -460,68 +615,50 @@
             const tag = document.createElement('span');
             tag.className = 'user-tag';
             tag.textContent = username;
-            if (username === username) {
-                tag.classList.add('self');
-                tag.textContent = `👤 ${username} (You)`;
-            }
             userList.appendChild(tag);
         }
 
-        // Remove user from list
         function removeUserFromList(username) {
             const userList = document.getElementById('userList');
             const tags = userList.querySelectorAll('.user-tag');
             tags.forEach(tag => {
-                if (tag.textContent.includes(username)) {
+                if (tag.textContent.includes(username) && !tag.textContent.includes('(You)')) {
                     tag.remove();
                 }
             });
         }
 
-        // Get host username (from server)
-        function getHost() {
-            // This would ideally come from the server
-            // For now, return the first user or host
-            const hostTag = document.querySelector('.user-tag.host');
-            if (hostTag) {
-                return hostTag.textContent.replace('👑 ', '');
-            }
-            return null;
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Escape HTML to prevent XSS
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // Copy room info to clipboard
         function copyRoomInfo() {
-            const url = window.location.origin + '/join';
-            const text = `Join my chat!\nRoom ID: ${roomId}\nLink: ${url}`;
-            
+            const text = `Join my chat!\nRoom ID: ${roomId}\nLink: ${window.location.origin}/join`;
             navigator.clipboard.writeText(text).then(() => {
                 const btn = event.target;
-                const originalText = btn.textContent;
                 btn.textContent = '✅ Copied!';
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                }, 2000);
+                setTimeout(() => { btn.textContent = '📋 Share'; }, 2000);
             }).catch(() => {
-                // Fallback
                 prompt('Copy this info:', text);
             });
         }
 
-        // Typing indicator
         document.getElementById('messageInput').addEventListener('input', function() {
             socket.emit('typing', {
                 room_id: roomId,
                 username: username,
                 is_typing: true
             });
-            
             clearTimeout(typingTimeout);
             typingTimeout = setTimeout(() => {
                 socket.emit('typing', {
@@ -532,7 +669,6 @@
             }, 1000);
         });
 
-        // Send on enter key
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -540,15 +676,26 @@
             }
         });
 
-        // Send button click
         document.getElementById('sendButton').addEventListener('click', sendMessage);
 
-        // Focus input on load
-        document.getElementById('messageInput').focus();
+        document.addEventListener('dragover', e => e.preventDefault());
+        document.addEventListener('drop', async function(e) {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            const btn = document.getElementById('fileUploadBtn');
+            btn.disabled = true;
+            for (let file of files) {
+                try { await uploadFile(file); } 
+                catch (error) { alert(`Error uploading ${file.name}: ${error.message}`); }
+            }
+            btn.disabled = false;
+        });
 
-        console.log(`✅ Connected to room: ${roomId}`);
-        console.log(`👤 Username: ${username}`);
-        console.log(`👑 Host: ${isHost}`);
+        document.getElementById('messageInput').focus();
+        console.log('✅ Connected to room:', roomId);
+        
+        // Show where files are saved
+        console.log('📁 Files saved in:', 'uploads/ folder');
     </script>
 </body>
 </html>
